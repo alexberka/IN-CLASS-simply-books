@@ -1,5 +1,7 @@
-import { getAuthorBooks, getSingleAuthor, deleteSingleAuthor } from './authorData';
-import { getSingleBook, deleteBook } from './bookData';
+import {
+  getAuthorBooks, getSingleAuthor, deleteSingleAuthor, getAuthors,
+} from './authorData';
+import { getSingleBook, deleteBook, getBooks } from './bookData';
 
 const viewBookDetails = (bookFirebaseKey) => new Promise((resolve, reject) => {
   getSingleBook(bookFirebaseKey)
@@ -29,4 +31,20 @@ const deleteAuthorBooks = (authorId) => new Promise((resolve, reject) => {
   }).catch((error) => reject(error));
 });
 
-export { viewBookDetails, viewAuthorDetails, deleteAuthorBooks };
+const searchStore = async (uid, query) => {
+  const matchedBooks = await getBooks(uid).then((data) => (
+    data.filter((book) => book.title.toLowerCase().includes(query)
+    || book.description.toLowerCase().includes(query)
+    || book.price.toLowerCase().includes(query))
+  ));
+  const matchedAuthors = await getAuthors(uid).then((data) => (
+    data.filter((author) => author.first_name.toLowerCase().includes(query)
+    || author.last_name.toLowerCase().includes(query)
+    || author.email.toLowerCase().includes(query))
+  ));
+  return { books: matchedBooks, authors: matchedAuthors };
+};
+
+export {
+  viewBookDetails, viewAuthorDetails, deleteAuthorBooks, searchStore,
+};

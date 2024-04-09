@@ -21,7 +21,18 @@ const getAuthors = (uid) => new Promise((resolve, reject) => {
 });
 
 // FIXME: CREATE AUTHOR
-const createAuthor = () => {};
+const createAuthor = (payload) => new Promise((resolve, reject) => {
+  fetch(`${endpoint}/authors.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => response.json())
+    .then((data) => resolve(data))
+    .catch(reject);
+});
 
 // FIXME: GET SINGLE AUTHOR
 const getSingleAuthor = (firebaseKey) => new Promise((resolve, reject) => {
@@ -29,10 +40,10 @@ const getSingleAuthor = (firebaseKey) => new Promise((resolve, reject) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-    }, 
+    },
   })
     .then((response) => response.json())
-    .then((data) => resolve(data)) 
+    .then((data) => resolve(data))
     .catch(reject);
 });
 
@@ -42,7 +53,7 @@ const deleteSingleAuthor = (firebaseKey) => new Promise((resolve, reject) => {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-    }, 
+    },
   })
     .then((response) => response.json())
     .then((data) => resolve(data))
@@ -50,13 +61,22 @@ const deleteSingleAuthor = (firebaseKey) => new Promise((resolve, reject) => {
 });
 
 // FIXME: UPDATE AUTHOR
-const updateAuthor = () => {};
+const updateAuthor = (payload) => new Promise((resolve, reject) => {
+  fetch(`${endpoint}/authors/${payload.firebaseKey}.json`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => response.json())
+    .then(resolve)
+    .catch(reject);
+});
 
 // TODO: GET A SINGLE AUTHOR'S BOOKS
-// const getAuthorBooks = () => {};
-
-const favoriteAuthors = (uid) => new Promise((resolve, reject) => {
-  fetch(`${endpoint}/authors.json?orderBy="uid"&equalTo="${uid}"`, {
+const getAuthorBooks = (firebaseKey) => new Promise((resolve, reject) => {
+  fetch(`${endpoint}/books.json?orderBy="author_id"&equalTo="${firebaseKey}"`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -64,11 +84,19 @@ const favoriteAuthors = (uid) => new Promise((resolve, reject) => {
   })
     .then((response) => response.json())
     .then((data) => {
-      const favorites = Object.values(data).filter((item) => item.favorite);
-      resolve(favorites);
+      if (data) {
+        resolve(Object.values(data));
+      } else {
+        resolve([]);
+      }
     })
     .catch(reject);
 });
+
+const favoriteAuthors = async (uid) => {
+  const authors = await getAuthors(uid);
+  return authors.filter((author) => author.favorite === true);
+};
 
 export {
   getAuthors,
@@ -77,5 +105,5 @@ export {
   deleteSingleAuthor,
   updateAuthor,
   favoriteAuthors,
-  // getAuthorBooks,
+  getAuthorBooks,
 };
