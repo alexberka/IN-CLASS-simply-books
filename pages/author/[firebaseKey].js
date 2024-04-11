@@ -15,6 +15,7 @@ export default function ViewAuthor() {
 
   useEffect(() => {
     displayAuthorDetails();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
